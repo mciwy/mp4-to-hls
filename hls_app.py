@@ -8,7 +8,6 @@ import webbrowser
 
 APP_VERSION = "1.0.1"
 VERSION_URL = "https://raw.githubusercontent.com/mciwy/mp4-to-hls/main/version.json"
-
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -32,7 +31,12 @@ def check_for_update():
             if latest_version != APP_VERSION:
                 answer = messagebox.askyesno(
                     "Доступно обновление",
-                    f"Новая версия: {latest_version}\n\nИзменения:\n{changelog}\n\nСкачать?"
+                    f"""Новая версия: {latest_version}
+
+Изменения:
+{changelog}
+
+Скачать?"""
                 )
                 if answer:
                     webbrowser.open(download_url)
@@ -69,8 +73,14 @@ def generate_hls(input_file, output_dir, bitrates, log_file, update_progress):
                 m3u8_path
             ]
 
-            process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            log.write(f"=== {r['name']} ===\n{process.stdout}\n")
+            try:
+                process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                log.write(f"=== {r['name']} ===\n{process.stdout}\n")
+                if process.returncode != 0:
+                    raise RuntimeError(f"FFmpeg завершился с ошибкой: {process.returncode}")
+            except Exception as e:
+                log.write(f"Ошибка в {r['name']}: {e}\n")
+                raise
 
             bandwidth = int(r['bitrate'].replace('k', '')) * 1000
             master_playlist += (
@@ -114,16 +124,16 @@ def run_conversion():
     })
 
     log_file = os.path.join(output_folder, "conversion_log.txt")
-    status_label.config(text="⏳ Конвертация... подождите.")
+    status_label.config(text="⏳ Конвертация... подождите.", fg="blue")
     progress_var.set(0)
     root.update()
 
     try:
         generate_hls(input_file, output_folder, bitrates, log_file, lambda p: progress_var.set(p))
-        status_label.config(text="✅ Готово! Потоки созданы.")
+        status_label.config(text="✅ Готово! Потоки созданы.", fg="green")
     except Exception as e:
-        status_label.config(text="❌ Ошибка при конвертации.")
-        messagebox.showerror("Ошибка", str(e))
+        status_label.config(text="❌ Ошибка при конвертации.", fg="red")
+        messagebox.showerror("FFmpeg Ошибка", str(e))
 
 def browse_input():
     filename = filedialog.askopenfilename(filetypes=[("MP4 files", "*.mp4")])
@@ -138,7 +148,7 @@ def browse_output():
 # === GUI ===
 root = tk.Tk()
 root.title(f"MP4 → HLS Конвертер v{APP_VERSION}")
-root.geometry("600x480")
+root.geometry("600x500")
 root.resizable(False, False)
 
 input_path = tk.StringVar()
@@ -152,14 +162,14 @@ cfg = load_config()
 input_path.set(cfg.get("input", ""))
 output_path.set(cfg.get("output", ""))
 bitrate_480.set(cfg.get("bitrates", {}).get("480p", "800"))
-bitrate_720.set(cfg.get("bitrates", {}).get("720p", "2800"))
+bitrate_720.set(cfg.get("bitrates", {}).get("720p", "2500"))
 bitrate_1080.set(cfg.get("bitrates", {}).get("1080p", "5000"))
 
-tk.Label(root, text="🎞️ Входной MP4-файл").pack(anchor="w", padx=10, pady=(15, 0))
+tk.Label(root, text="MP4-файл").pack(anchor="w", padx=10, pady=(10,0))
 tk.Entry(root, textvariable=input_path, width=70).pack(padx=10)
 tk.Button(root, text="Выбрать файл", command=browse_input).pack(pady=(5, 15))
 
-tk.Label(root, text="📂 Папка для вывода").pack(anchor="w", padx=10)
+tk.Label(root, text="Папка для вывода").pack(anchor="w", padx=10)
 tk.Entry(root, textvariable=output_path, width=70).pack(padx=10)
 tk.Button(root, text="Выбрать папку", command=browse_output).pack(pady=(5, 15))
 
@@ -178,13 +188,11 @@ tk.Label(frame, text="1080p").grid(row=2, column=0, sticky="e")
 tk.Entry(frame, textvariable=bitrate_1080, width=10).grid(row=2, column=1)
 tk.Label(frame, text="Kbps").grid(row=2, column=2, sticky="w")
 
-tk.Button(root, text="🚀 Конвертировать", command=run_conversion).pack(pady=10)
-
+tk.Button(root, text="Конвертировать", command=run_conversion).pack(pady=10)
 ttk.Progressbar(root, variable=progress_var, maximum=100, length=500).pack(padx=20)
 
-status_label = tk.Label(root, text="", fg="blue")
-status_label.pack()
+status_label = tk.Label(root, text="", font=("Segoe UI", 10, "bold"))
+status_label.pack(pady=10)
 
 check_for_update()
-
 root.mainloop()
