@@ -6,7 +6,7 @@ from tkinter import filedialog, messagebox, ttk
 import urllib.request
 import webbrowser
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 VERSION_URL = "https://raw.githubusercontent.com/mciwy/mp4-to-hls/main/version.json"
 
 CONFIG_FILE = "config.json"
