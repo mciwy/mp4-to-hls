@@ -19,7 +19,7 @@
 
 ## 🖥️ Интерфейс
 
-<img src="https://github.com/mciwy/mp4-to-hls/assets/preview.png" alt="Превью интерфейса" width="600"/>
+<img src="https://github.com/mciwy/mp4-to-hls/blob/main/assets/preview.png" alt="Превью интерфейса" width="600"/>
 
 ---
 
@@ -69,7 +69,7 @@ mp4-to-hls/
 
 ---
 
-## 🧠 TODO (по желанию)
+## 🧠 TODO
 
 - [ ] Поддержка drag & drop
 - [ ] Поддержка CLI-режима
@@ -79,5 +79,4 @@ mp4-to-hls/
 
 ## 🧑‍💻 Автор
 
-**@deliorix aka @mciwy**  
-Проект в открытом доступе: [https://github.com/mciwy/mp4-to-hls](https://github.com/mciwy/mp4-to-hls)
+**@deliorix aka @mciwy**
