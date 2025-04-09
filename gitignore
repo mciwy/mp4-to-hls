@@ -1,0 +1,26 @@
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.spec
+
+# Logs and data
+*.log
+conversion_log.txt
+config.json
+
+# PyInstaller output
+*.exe
+
+# VS Code or VSCodium config
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
